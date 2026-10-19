@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#111111">
+<title>Moja Apka — Lista zadań</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:system-ui,sans-serif; }
+  body { background:#111; color:#eee; min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:24px 16px; }
+  h1 { font-size:1.4rem; margin-bottom:16px; }
+  .row { display:flex; gap:8px; width:100%; max-width:420px; }
+  input { flex:1; padding:12px; border-radius:10px; border:1px solid #444; background:#1c1c1c; color:#eee; font-size:1rem; }
+  button { padding:12px 18px; border:none; border-radius:10px; background:#fff; color:#111; font-weight:600; cursor:pointer; }
+  ul { list-style:none; width:100%; max-width:420px; margin-top:16px; }
+  li { display:flex; justify-content:space-between; align-items:center; background:#1c1c1c; border:1px solid #333; padding:12px; border-radius:10px; margin-bottom:8px; cursor:pointer; }
+  li.done span { text-decoration:line-through; color:#777; }
+  li .del { color:#f66; padding:0 8px; }
+</style>
+</head>
+<body>
+  <h1>✅ Moja Apka</h1>
+  <div class="row">
+    <input id="task" placeholder="Nowe zadanie..." onkeydown="if(event.key==='Enter')add()">
+    <button onclick="add()">Dodaj</button>
+  </div>
+  <ul id="list"></ul>
+<script>
+let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+function save(){ localStorage.setItem('tasks', JSON.stringify(tasks)); render(); }
+function render(){
+  const el = document.getElementById('list'); el.innerHTML='';
+  tasks.forEach((t,i)=>{
+    const li = document.createElement('li');
+    if(t.done) li.className='done';
+    li.innerHTML = `<span>${t.text}</span><span class="del">✕</span>`;
+    li.onclick = e => { if(e.target.classList.contains('del')) tasks.splice(i,1); else t.done=!t.done; save(); };
+    el.appendChild(li);
+  });
+}
+function add(){
+  const inp = document.getElementById('task');
+  if(!inp.value.trim()) return;
+  tasks.push({text:inp.value.trim(), done:false});
+  inp.value=''; save();
+}
+render();
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>
